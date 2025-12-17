@@ -30,7 +30,7 @@ DROP TABLE IF EXISTS log;
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- =========================
---  BASIS-TABELLEN
+--  BASE-TABLES
 -- =========================
 
 CREATE TABLE Santa (
@@ -80,7 +80,7 @@ CREATE TABLE NorthPoleWarehouse (
 ) ENGINE=InnoDB;
 
 -- =========================
---  ELFEN & SCHICHTEN
+--  ELVES AND SHIFTS
 -- =========================
 
 CREATE TABLE ElfEmployee (
@@ -106,7 +106,7 @@ CREATE TABLE Shift (
 ) ENGINE=InnoDB;
 
 -- =========================
---  BESTELLUNGEN & POSITIONEN
+--  ORDERS
 -- =========================
 
 CREATE TABLE `Order` (
@@ -135,9 +135,9 @@ CREATE TABLE OrderItem (
         FOREIGN KEY (product_id) REFERENCES Product(product_id)
 ) ENGINE=InnoDB;
 
--- =========================
---  PRODUKT–ZUTAT-BEZIEHUNGEN
--- =========================
+-- =======================================
+--  RELATIONS OF PRODUCTS AND INGREDIGENTS
+-- =======================================
 
 CREATE TABLE ProductIngredient (
     product_id     INT UNSIGNED NOT NULL,
@@ -150,7 +150,7 @@ CREATE TABLE ProductIngredient (
 ) ENGINE=InnoDB;
 
 -- =========================
---  RENTIER-LIEFERUNGEN
+--  REINDEER DELIVERIES
 -- =========================
 
 CREATE TABLE ReindeerDelivery (
@@ -168,7 +168,7 @@ CREATE TABLE ReindeerDelivery (
 ) ENGINE=InnoDB;
 
 -- =========================
---  LAGERBESTAND
+--  WAREHOUSE INVENTORY
 -- =========================
 
 CREATE TABLE WarehouseInventory (
@@ -191,7 +191,7 @@ CREATE TABLE log(
 ) ENGINE=InnoDB;
 
 -- =========================
---  INDEXE
+--  INDICES
 -- =========================
 
 CREATE INDEX idx_elf_role ON ElfEmployee(role_id);
@@ -214,6 +214,9 @@ CREATE INDEX idx_inventory_ingredient ON WarehouseInventory(ingredient_id);
 
 ALTER TABLE `Order` AUTO_INCREMENT = 4;
 
+
+-- Trigger to calculate the total price for each order
+
 DELIMITER $$
 
 CREATE TRIGGER calc_price_after_insert
@@ -232,6 +235,9 @@ END$$
 
 DELIMITER ;
 
+-- =========================
+--  INSERTS
+-- =========================
 
 INSERT INTO Santa (name, email) VALUES
 ('Santa Claus', 'santa@northpole.com'),
@@ -309,7 +315,7 @@ INSERT INTO Customer (name, email, address) VALUES
 
 INSERT INTO Reindeer (name, age, can_fly_in_snowstorm) VALUES
 ('Frosthorn', 4, 1),
-('Silverhoof', 9, 1),
+('Sven', 9, 1),
 ('Blizzardhorn', 3, 0),
 ('Crystalwing', 10, 1),
 ('Snowglider', 7, 1),
@@ -317,10 +323,10 @@ INSERT INTO Reindeer (name, age, can_fly_in_snowstorm) VALUES
 ('Icejumper', 5, 1),
 ('Stormrunner', 11, 1),
 ('Whisperwind', 4, 0),
-('Glownose', 2, 1),
+('Rudolph', 2, 1),
 ('Aurorastep', 6, 1),
 ('Frostdash', 8, 1),
-('Snowecho', 5, 0);
+('Shadowfax', 5, 0);
 
 
 INSERT INTO NorthPoleWarehouse (location, manager_name) VALUES
@@ -378,7 +384,7 @@ INSERT INTO Shift (elf_id, start_time, end_time) VALUES
 (3, '2024-12-18 08:00', '2024-12-18 16:00'),
 (3, '2024-12-30 08:00', '2024-12-30 16:00'),
 (4, '2024-12-13 09:00', '2024-12-13 18:00'),
-(4, '2024-12-19 09:00', '2024-12-19 18:00'),
+(2, '2024-12-19 09:00', '2024-12-19 18:00'),
 (4, '2024-12-27 09:00', '2024-12-27 18:00'),
 (5, '2024-12-14 08:00', '2024-12-14 16:00'),
 (5, '2024-12-20 08:00', '2024-12-20 16:00'),
@@ -400,7 +406,6 @@ INSERT INTO Shift (elf_id, start_time, end_time) VALUES
 (10, '2024-12-23 10:00', '2024-12-23 19:00');
 
 
-
 INSERT INTO `Order` (customer_id, order_date, total_price, status, rating_stars, rating_text) VALUES
 (4, '2023-12-08', NULL, 'completed', 5, 'Great!'),
 (5, '2023-12-09', NULL, 'completed', 4, 'Very good.'),
@@ -412,7 +417,7 @@ INSERT INTO `Order` (customer_id, order_date, total_price, status, rating_stars,
 (1, '2024-12-15', NULL, 'completed', 5, 'Wonderful gift'),
 (2, '2024-12-16', NULL, 'completed', 5, 'Very festive'),
 (3, '2025-12-15', NULL, 'in_progress', NULL, NULL),
-(4, '2025-12-16', NULL, 'in_progress', NULL, NULL),
+(4, '2024-12-16', NULL, 'completed', 3, 'Average.'),
 (6, '2025-12-17', NULL, 'in_progress', NULL, NULL),
 (11, '2025-12-18', NULL, 'in_progress', NULL, NULL),
 (12, '2025-12-19', NULL, 'in_progress', NULL, NULL),
@@ -420,7 +425,7 @@ INSERT INTO `Order` (customer_id, order_date, total_price, status, rating_stars,
 (1,  '2025-12-18', NULL, 'in_progress', NULL, NULL),
 (2,  '2025-12-18', NULL, 'in_progress', NULL, NULL),
 (3,  '2025-12-18', NULL, 'in_progress', NULL, NULL),
-(4,  '2025-12-19', NULL, 'in_progress', NULL, NULL),
+(4,  '2024-12-19', NULL, 'completed', 2, 'I did not like it.'),
 (5,  '2025-12-19', NULL, 'in_progress', NULL, NULL),
 (6,  '2025-12-20', NULL, 'in_progress', NULL, NULL),
 (7,  '2025-12-20', NULL, 'in_progress', NULL, NULL),
@@ -517,7 +522,7 @@ INSERT INTO WarehouseInventory (warehouse_id, ingredient_id, quantity) VALUES
 (12, 12, 260),
 (11, 13, 300);
 
-
+-- Trigger which sets the status to completed after a rating was done.
 DELIMITER $$
 
 CREATE TRIGGER update_status
@@ -533,6 +538,7 @@ DELIMITER ;
 
 DELIMITER $$
 
+-- Fill log table after an order has been added.
 CREATE TRIGGER update_log
 AFTER INSERT ON `Order`
 FOR EACH ROW
@@ -542,4 +548,81 @@ BEGIN
 END$$
 
 DELIMITER ;
+
+-- =========================
+--  VIEWS
+-- =========================
+
+CREATE OR REPLACE VIEW invoice_header AS
+SELECT
+    o.order_id AS invoice_id,
+    o.order_date AS invoice_date,
+    c.name AS customer_name,
+    c.email AS customer_email,
+    c.address AS customer_address,
+    o.total_price AS invoice_total
+FROM `Order` o
+JOIN Customer c
+    ON o.customer_id = c.customer_id;
+
+CREATE OR REPLACE VIEW invoice_items AS
+SELECT
+    oi.order_id AS invoice_id,
+    p.product_id,
+    p.name AS item_name,
+    oi.quantity,
+    p.price AS unit_price,
+    (oi.quantity * p.price) AS line_total
+FROM OrderItem oi
+JOIN Product p
+    ON oi.product_id = p.product_id;
+    
+    
+-- =========================
+--  QUERIES
+-- =========================
+-- Average rating of customer Leo Blizzard
+SELECT c.name, AVG(rating_stars) as average_rating 
+FROM customer c
+JOIN `Order` as o ON o.customer_id = c.customer_id
+WHERE c.customer_id = 4 and o.rating_stars IS NOT NULL
+group by c.customer_id;
+
+-- Which product brought the most income?
+SELECT 
+    p.product_id,
+    p.name AS product_name,
+    SUM(o.total_price) AS total_sales,
+    SUM(oi.quantity) AS units_sold
+FROM OrderItem oi
+JOIN Product p ON oi.product_id = p.product_id
+JOIN `Order` o ON oi.order_id = o.order_id
+WHERE o.status = 'completed'
+GROUP BY p.product_id
+ORDER BY total_sales DESC;
+
+-- How many shifts has the elves worked and who is the top performer?
+SELECT 
+    e.elf_id,
+    e.name AS elf_name,
+    COUNT(s.shift_id) AS shifts_worked
+FROM ElfEmployee e
+JOIN Shift s ON e.elf_id = s.elf_id
+WHERE s.start_time BETWEEN '2024-12-01' AND '2024-12-31'
+GROUP BY e.elf_id, e.name
+ORDER BY shifts_worked DESC;
+
+-- Which reindeers can fly in snowstorm?
+SELECT r.name
+FROM reindeer r
+WHERE r.can_fly_in_snowstorm = 1;
+
+-- Count of total employees.
+SELECT
+    (SELECT COUNT(*) FROM ElfEmployee) +
+    (SELECT COUNT(*) FROM Santa) +
+    (SELECT COUNT(*) FROM Reindeer) AS total_employees;
+
+
+
 
