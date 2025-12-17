@@ -12,43 +12,43 @@ INSERT INTO Role (role_name) VALUES
 
 
 INSERT INTO Product (name, description, price, is_gluten_free, is_vegan) VALUES
-('Polar Cookie', 'Knuspriger Winterkeks', 2.10, 0, 0),
-('Snowflake Cupcake', 'Süßer Cupcake mit Glasur', 3.50, 0, 0),
-('Ice Crystal Candy', 'Durchsichtige Zuckerkristalle', 1.70, 1, 1),
-('Candy Cane XXL', 'Extra große Zuckerstange', 2.40, 1, 1),
-('Winter Brownie', 'Saftiger Schoko-Brownie', 2.90, 0, 0),
-('Elf Snack Bites', 'Vegane Mini-Snacks', 3.10, 1, 1),
-('Reindeer Oats', 'Haferkekse für sportliche Rentiere', 2.20, 1, 1),
-('Frost Marshmallows', 'Schaumzucker, sehr fluffig', 1.80, 1, 0),
-('Choco Snow Bomb', 'Schokotraum-Kugel', 2.70, 0, 0),
-('Nut-Free Crunch', 'Knusperkeks ohne Allergene', 2.00, 1, 1);
+('Polar Cookie', 'Crunchy winter cookie', 2.10, 0, 0),
+('Snowflake Cupcake', 'Sweet cupcake with icing', 3.50, 0, 0),
+('Ice Crystal Candy', 'Transparent sugar crystals', 1.70, 1, 1),
+('Candy Cane XXL', 'Extra large candy cane', 2.40, 1, 1),
+('Winter Brownie', 'Moist chocolate brownie', 2.90, 0, 0),
+('Elf Snack Bites', 'Vegan mini snacks', 3.10, 1, 1),
+('Reindeer Oats', 'Oat cookies for athletic reindeer', 2.20, 1, 1),
+('Frost Marshmallows', 'Fluffy marshmallow candy', 1.80, 1, 0),
+('Choco Snow Bomb', 'Chocolate dream sphere', 2.70, 0, 0),
+('Nut-Free Crunch', 'Crunch cookie without allergens', 2.00, 1, 1);
 
 
 INSERT INTO Ingredient (name, is_allergen) VALUES
-('Haferflocken', 0),
-('Vanillearoma', 0),
-('Kakao', 1),
-('Honig', 0),
-('Walnuss', 1),
-('Haselnuss', 1),
-('Kokosraspeln', 0),
-('Puderzucker', 0),
-('Mandeln', 1),
-('Vegane Schokolade', 0);
-
+('Oats', 0),
+('Vanilla flavoring', 0),
+('Cocoa', 1),
+('Honey', 0),
+('Walnut', 1),
+('Hazelnut', 1),
+('Coconut flakes', 0),
+('Powdered sugar', 0),
+('Almonds', 1),
+('Vegan chocolate', 0);
 
 
 INSERT INTO Customer (name, email, address) VALUES
-('Sofie Snow', 'sofie.snow@example.com', 'Frostweg 9'),
-('Peter Polar', 'peter.polar@example.com', 'Winterallee 21'),
-('Kira Kristall', 'kira.k@example.com', 'Eisbergstraße 5'),
-('Leo Blizzard', 'leo.blizzard@example.com', 'Nordhang 88'),
-('Mia Frostwind', 'mia.frost@example.com', 'Eiszapfenring 122'),
-('Tommy Tundra', 'tommy.tundra@example.com', 'Tundraweg 3'),
-('Ella Eisstern', 'ella.eisstern@example.com', 'Polarstraße 44'),
-('Ben Schnee', 'ben.schnee@example.com', 'Weihnachtsweg 11'),
-('Nora Winterkind', 'nora.winter@example.com', 'Schneekette 70'),
-('Chris Kristall', 'chris.kristall@example.com', 'Kältepfad 51');
+('Sofie Snow', 'sofie.snow@example.com', 'Frost Road 9'),
+('Peter Polar', 'peter.polar@example.com', 'Winter Avenue 21'),
+('Kira Crystal', 'kira.k@example.com', 'Iceberg Street 5'),
+('Leo Blizzard', 'leo.blizzard@example.com', 'North Slope 88'),
+('Mia Frostwind', 'mia.frost@example.com', 'Icicle Ring 122'),
+('Tommy Tundra', 'tommy.tundra@example.com', 'Tundra Road 3'),
+('Ella Icestar', 'ella.eisstern@example.com', 'Polar Street 44'),
+('Ben Snow', 'ben.schnee@example.com', 'Christmas Road 11'),
+('Nora Winterchild', 'nora.winter@example.com', 'Snow Chain 70'),
+('Chris Crystal', 'chris.kristall@example.com', 'Cold Path 51');
+
 
 INSERT INTO Reindeer (name, age, can_fly_in_snowstorm) VALUES
 ('Frosthorn', 4, 1),
@@ -64,16 +64,16 @@ INSERT INTO Reindeer (name, age, can_fly_in_snowstorm) VALUES
 
 
 INSERT INTO NorthPoleWarehouse (location, manager_name) VALUES
-('Westhalle C', 'Elvira Eis'),
-('Osthalle D', 'Frosti Blitz'),
-('Südhalle E', 'Eli Schneid'),
-('Nordhalle F', 'Gloria Glitz'),
-('Zentralhalle G', 'Floria Frost'),
-('Lager H1', 'Nando Nord'),
-('Lager H2', 'Tilda Tundra'),
-('Lager I', 'Berta Blizzard'),
-('Lager J', 'Kuno Kristall'),
-('Lager K', 'Mila Mützenwind');
+('West Hall C', 'Elvira Ice'),
+('East Hall D', 'Frosti Flash'),
+('South Hall E', 'Eli Cutter'),
+('North Hall F', 'Gloria Glitz'),
+('Central Hall G', 'Floria Frost'),
+('Warehouse H1', 'Nando North'),
+('Warehouse H2', 'Tilda Tundra'),
+('Warehouse I', 'Berta Blizzard'),
+('Warehouse J', 'Kuno Crystal'),
+('Warehouse K', 'Mila Hatwind');
 
 
 INSERT INTO ElfEmployee (name, email, hire_date, role_id, supervisor_id) VALUES
@@ -103,16 +103,17 @@ INSERT INTO Shift (elf_id, start_time, end_time) VALUES
 
 
 INSERT INTO `Order` (customer_id, order_date, total_price, status, rating_stars, rating_text) VALUES
-(4, '2024-12-08', 4.20, 'completed', 5, 'Super!'),
-(5, '2024-12-09', 7.60, 'completed', 4, 'Sehr gut.'),
-(6, '2024-12-10', 14.50, 'delivered', 3, 'Ganz okay'),
+(4, '2024-12-08', 4.20, 'completed', 5, 'Great!'),
+(5, '2024-12-09', 7.60, 'completed', 4, 'Very good.'),
+(6, '2024-12-10', 14.50, 'delivered', 3, 'Quite okay'),
 (7, '2024-12-11', 6.00, 'in_progress', NULL, NULL),
-(8, '2024-12-12', 9.90, 'completed', 5, 'Mega lecker!'),
-(9, '2024-12-13', 11.20, 'delivered', 4, 'Schmeckt gut.'),
+(8, '2024-12-12', 9.90, 'completed', 5, 'Super tasty!'),
+(9, '2024-12-13', 11.20, 'delivered', 4, 'Tastes good.'),
 (10, '2024-12-14', 8.40, 'cancelled', NULL, NULL),
-(1, '2024-12-15', 3.10, 'completed', 5, 'Tolles Geschenk'),
+(1, '2024-12-15', 3.10, 'completed', 5, 'Wonderful gift'),
 (2, '2024-12-16', 5.70, 'in_progress', NULL, NULL),
-(3, '2024-12-17', 12.80, 'completed', 5, 'Sehr festlich!');
+(3, '2024-12-17', 12.80, 'completed', 5, 'Very festive!');
+
 
 INSERT INTO OrderItem (order_id, product_id, quantity, price) VALUES
 (4, 2, 1, 1.20),
