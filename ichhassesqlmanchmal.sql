@@ -1,5 +1,12 @@
 -- OPTIONAL: create & select database
 -- CREATE DATABASE santa_and_co_kg;
+
+-- Eva Langstein 20251061
+-- Tim Lehmann 20251060
+-- Felix Disselkamp 20251059
+-- Erkam Dogan 20251017
+-- Anne Staskiewicz 20251002
+
 USE santa_and_co_kg;
 
 SET FOREIGN_KEY_CHECKS = 0;
@@ -18,6 +25,7 @@ DROP TABLE IF EXISTS Product;
 DROP TABLE IF EXISTS Customer;
 DROP TABLE IF EXISTS Role;
 DROP TABLE IF EXISTS Santa;
+DROP TABLE IF EXISTS log;
 
 SET FOREIGN_KEY_CHECKS = 1;
 
@@ -105,7 +113,7 @@ CREATE TABLE `Order` (
     order_id      INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
     customer_id   INT UNSIGNED NOT NULL,
     order_date    DATE NOT NULL,
-    total_price   DECIMAL(10,2) NOT NULL,
+    total_price   DECIMAL(10,2),
     status        ENUM("in_progress", "completed", "cancelled"),
     rating_stars  TINYINT,
     rating_text   TEXT,
@@ -121,7 +129,6 @@ CREATE TABLE OrderItem (
     order_id       INT UNSIGNED NOT NULL,
     product_id     INT UNSIGNED NOT NULL,
     quantity       INT NOT NULL,
-    price          DECIMAL(10,2) NOT NULL,
     CONSTRAINT fk_orderitem_order
         FOREIGN KEY (order_id) REFERENCES `Order`(order_id),
     CONSTRAINT fk_orderitem_product
@@ -207,10 +214,32 @@ CREATE INDEX idx_inventory_ingredient ON WarehouseInventory(ingredient_id);
 
 ALTER TABLE `Order` AUTO_INCREMENT = 4;
 
+DELIMITER $$
+
+CREATE TRIGGER calc_price_after_insert
+AFTER INSERT ON OrderItem
+FOR EACH ROW
+BEGIN
+    UPDATE `Order`
+    SET total_price = (
+        SELECT SUM(oi.quantity * p.price)
+        FROM OrderItem oi
+        JOIN Product p ON oi.product_id = p.product_id
+        WHERE oi.order_id = NEW.order_id
+    )
+    WHERE order_id = NEW.order_id;
+END$$
+
+DELIMITER ;
+
 
 INSERT INTO Santa (name, email) VALUES
 ('Santa Claus', 'santa@northpole.com'),
-('Satan', 'mrs.claus@northpole.com');
+('Satan', 'mrs.claus@northpole.com'),
+('Nikolaus North', 'nikolaus@northpole.com'),
+('Old Saint Nick', 'oldnick@northpole.com');
+
+
 INSERT INTO Role (role_name) VALUES
 ('Snow Sculptor'),
 ('Candy Designer'),
@@ -221,7 +250,10 @@ INSERT INTO Role (role_name) VALUES
 ('Logistics Coordinator'),
 ('Stable Cleaner'),
 ('Gift Wrapper'),
-('Holiday Spirit Manager');
+('Holiday Spirit Manager'),
+('Ice Logistics Planner'),
+('Toy Painter'),
+('Snow Quality Inspector');
 
 
 INSERT INTO Product (name, description, price, is_gluten_free, is_vegan) VALUES
@@ -237,7 +269,10 @@ INSERT INTO Product (name, description, price, is_gluten_free, is_vegan) VALUES
 ('Aurora Mint Shards', 'Cooling crystalline mint candy inspired by the northern lights.', 2.30, 1, 1),
 ('Elf Energy Bar', 'A nutrient-packed oat-free vegan bar that keeps elves energized.', 2.90, 1, 1),
 ('Starlight Ginger Crunch', 'A festive ginger cookie with a magical golden sparkle.', 2.50, 1, 1),
-('Nut-Free Crunch', 'Crunch cookie without allergens', 2.00, 1, 1);
+('Nut-Free Crunch', 'Crunch cookie without allergens', 2.00, 1, 1),
+('Frozen Berry Chews', 'Chewy berry candy from the arctic', 2.60, 1, 1),
+('Milk Snow Drops', 'Creamy snow-white drops', 2.20, 1, 0),
+('Peppermint Slabs', 'Strong mint candy plates', 2.90, 1, 1);
 
 
 INSERT INTO Ingredient (name, is_allergen) VALUES
@@ -250,7 +285,10 @@ INSERT INTO Ingredient (name, is_allergen) VALUES
 ('Coconut flakes', 0),
 ('Powdered sugar', 0),
 ('Almonds', 1),
-('Vegan chocolate', 0);
+('Vegan chocolate', 0),
+('Peppermint oil', 0),
+('Milk powder', 1),
+('Berry extract', 0);
 
 
 INSERT INTO Customer (name, email, address) VALUES
@@ -263,7 +301,10 @@ INSERT INTO Customer (name, email, address) VALUES
 ('Ella Icestar', 'ella.eisstern@example.com', 'Polar Street 44'),
 ('Ben Snow', 'ben.schnee@example.com', 'Christmas Road 11'),
 ('Nora Winterchild', 'nora.winter@example.com', 'Snow Chain 70'),
-('Chris Crystal', 'chris.kristall@example.com', 'Cold Path 51');
+('Chris Crystal', 'chris.kristall@example.com', 'Cold Path 51'),
+('Luna Snowfall', 'luna.snow@example.com', 'Aurora Lane 6'),
+('Oliver Icewind', 'oliver.ice@example.com', 'Glacier Way 18'),
+('Freya Northstar', 'freya.star@example.com', 'Polar Circle 1');
 
 
 INSERT INTO Reindeer (name, age, can_fly_in_snowstorm) VALUES
@@ -276,7 +317,10 @@ INSERT INTO Reindeer (name, age, can_fly_in_snowstorm) VALUES
 ('Icejumper', 5, 1),
 ('Stormrunner', 11, 1),
 ('Whisperwind', 4, 0),
-('Glownose', 2, 1);
+('Glownose', 2, 1),
+('Aurorastep', 6, 1),
+('Frostdash', 8, 1),
+('Snowecho', 5, 0);
 
 
 INSERT INTO NorthPoleWarehouse (location, manager_name) VALUES
@@ -289,7 +333,9 @@ INSERT INTO NorthPoleWarehouse (location, manager_name) VALUES
 ('Warehouse H2', 'Tilda Tundra'),
 ('Warehouse I', 'Berta Blizzard'),
 ('Warehouse J', 'Kuno Crystal'),
-('Elsas Palace', 'Elsa');
+('Elsas Palace', 'Elsa'),
+('Ice Tunnel K', 'Hilda Hoarfrost'),
+('Crystal Dome L', 'Oscar Aurora');
 
 
 INSERT INTO ElfEmployee (name, email, hire_date, role_id, supervisor_id) VALUES
@@ -302,48 +348,95 @@ INSERT INTO ElfEmployee (name, email, hire_date, role_id, supervisor_id) VALUES
 ('Nelly Nimbus', 'nelly@northpole.com', '2017-02-19', 8, 1),
 ('Dodo Dazzle', 'dodo@northpole.com', '2016-04-01', 9, 2),
 ('Blinky Bling', 'blinky@northpole.com', '2021-11-11', 10, 1),
-('Chippy Cheer', 'chippy@northpole.com', '2022-03-14', 3, 1);
+('Chippy Cheer', 'chippy@northpole.com', '2022-03-14', 3, 1),
+('Lilli Spark', 'lilli@northpole.com', '2024-02-01', 1, 1),
+('Bobo Mint', 'bobo@northpole.com', '2023-08-15', 2, 2),
+('Rina Glow', 'rina@northpole.com', '2022-10-10', 5, 1);
 
 
 INSERT INTO Shift (elf_id, start_time, end_time) VALUES
-(5, '2024-12-02 08:00', '2024-12-02 16:00'),
-(6, '2024-12-02 09:00', '2024-12-02 18:00'),
-(7, '2024-12-02 10:00', '2024-12-02 19:00'),
-(8, '2024-12-03 08:00', '2024-12-03 16:00'),
-(9, '2024-12-03 09:00', '2024-12-03 18:00'),
+(5,  '2023-12-02 08:00', '2023-12-02 16:00'),
+(6,  '2023-12-02 09:00', '2023-12-02 18:00'),
+(7,  '2023-12-02 10:00', '2023-12-02 19:00'),
+(8,  '2023-12-03 08:00', '2023-12-03 16:00'),
+(9,  '2024-12-03 09:00', '2024-12-03 18:00'),
 (10, '2024-12-03 10:00', '2024-12-03 19:00'),
-(3, '2024-12-04 08:00', '2024-12-04 16:00'),
-(4, '2024-12-04 09:00', '2024-12-04 18:00'),
-(2, '2024-12-04 10:00', '2024-12-04 19:00'),
-(1, '2024-12-05 08:00', '2024-12-05 16:00');
+(3,  '2024-12-04 08:00', '2024-12-04 16:00'),
+(4,  '2024-12-04 09:00', '2024-12-04 18:00'),
+(2,  '2024-12-04 10:00', '2024-12-04 19:00'),
+(1,  '2025-12-05 08:00', '2025-12-05 16:00'),
+(11, '2025-12-06 08:00', '2025-12-06 16:00'),
+(12, '2025-12-06 09:00', '2025-12-06 18:00'),
+(13, '2025-12-07 10:00', '2025-12-07 19:00');
 
 
 INSERT INTO `Order` (customer_id, order_date, total_price, status, rating_stars, rating_text) VALUES
-(4, '2023-12-08', 4.20, 'completed', 5, 'Great!'),
-(5, '2023-12-09', 7.60, 'completed', 4, 'Very good.'),
-(6, '2023-12-10', 14.50, 'completed', 3, 'Quite okay'),
-(7, '2023-12-11', 6.00, 'completed', 2, 'Bad'),
-(8, '2023-12-12', 9.90, 'completed', 5, 'Super tasty!'),
-(9, '2024-12-13', 11.20, 'completed', 4, 'Tastes good.'),
-(10, '2024-12-14', 8.40, 'cancelled', NULL, NULL),
-(1, '2024-12-15', 3.10, 'completed', 5, 'Wonderful gift'),
-(2, '2024-12-16', 5.70, 'completed', 5, 'Very festive'),
-(3, '2025-12-15', 12.80, 'in_progress', NULL, NULL),
-(4, '2025-12-16', 12.80, 'in_progress', NULL, NULL),
-(6, '2025-12-17', 12.80, 'in_progress', NULL, NULL);
+(4, '2023-12-08', NULL, 'completed', 5, 'Great!'),
+(5, '2023-12-09', NULL, 'completed', 4, 'Very good.'),
+(6, '2023-12-10', NULL, 'completed', 3, 'Quite okay'),
+(7, '2023-12-11', NULL, 'completed', 2, 'Bad'),
+(8, '2023-12-12', NULL, 'completed', 5, 'Super tasty!'),
+(9, '2024-12-13', NULL, 'completed', 4, 'Tastes good.'),
+(10, '2024-12-14', NULL, 'cancelled', NULL, NULL),
+(1, '2024-12-15', NULL, 'completed', 5, 'Wonderful gift'),
+(2, '2024-12-16', NULL, 'completed', 5, 'Very festive'),
+(3, '2025-12-15', NULL, 'in_progress', NULL, NULL),
+(4, '2025-12-16', NULL, 'in_progress', NULL, NULL),
+(6, '2025-12-17', NULL, 'in_progress', NULL, NULL),
+(11, '2025-12-18', NULL, 'in_progress', NULL, NULL),
+(12, '2025-12-19', NULL, 'in_progress', NULL, NULL),
+(13, '2025-12-20', NULL, 'in_progress', NULL, NULL),
+(1,  '2025-12-18', NULL, 'in_progress', NULL, NULL),
+(2,  '2025-12-18', NULL, 'in_progress', NULL, NULL),
+(3,  '2025-12-18', NULL, 'in_progress', NULL, NULL),
+(4,  '2025-12-19', NULL, 'in_progress', NULL, NULL),
+(5,  '2025-12-19', NULL, 'in_progress', NULL, NULL),
+(6,  '2025-12-20', NULL, 'in_progress', NULL, NULL),
+(7,  '2025-12-20', NULL, 'in_progress', NULL, NULL),
+(8,  '2025-12-21', NULL, 'in_progress', NULL, NULL);
 
 
-INSERT INTO OrderItem (order_id, product_id, quantity, price) VALUES
-(4, 2, 1, 1.20),
-(4, 3, 1, 12.00),
-(5, 5, 2, 2.90),
-(6, 8, 1, 1.80),
-(7, 1, 3, 2.50),
-(8, 10, 2, 2.00),
-(9, 4, 1, 3.00),
-(10, 6, 2, 3.10),
-(11, 7, 1, 2.20),
-(12, 9, 1, 2.70);
+INSERT INTO OrderItem (order_id, product_id, quantity) VALUES
+(4, 2, 1),
+(4, 3, 4),
+(5, 5, 2),
+(6, 8, 1),
+(7, 1, 3),
+(8, 10, 2),
+(9, 4, 1),
+(10, 6, 2),
+(11, 7, 1),
+(12, 9, 1),
+(13, 12, 4),
+(14, 14, 2),
+(15, 15, 2),
+(16, 16, 1),
+(17, 1, 2),
+(17, 3, 1),
+(18, 4, 2),
+(18, 10, 1),
+(18, 6, 1),
+(19, 2, 1),
+(20, 5, 1),
+(20, 9, 1),
+(20, 3, 2),
+(21, 6, 1),
+(21, 4, 1),
+(21, 3, 1),
+(22, 11, 2),
+(22, 7, 1),
+(22, 10, 1),
+(23, 4, 1),
+(23, 3, 2),
+(24, 12, 1),
+(24, 6, 1),
+(24, 3, 2),
+(25, 1, 1),
+(25, 3, 1),
+(25, 8, 1),
+(26, 9, 2),
+(26, 10, 1),
+(26, 3, 1);
 
 
 INSERT INTO ProductIngredient (product_id, ingredient_id) VALUES
@@ -356,7 +449,10 @@ INSERT INTO ProductIngredient (product_id, ingredient_id) VALUES
 (10, 7),
 (11, 9),
 (12, 6),
-(13, 10);
+(13, 10),
+(14, 13),
+(15, 12),
+(16, 11);
 
 
 INSERT INTO ReindeerDelivery (order_id, reindeer_id, departure_time, arrival_time, delivery_status) VALUES
@@ -369,7 +465,10 @@ INSERT INTO ReindeerDelivery (order_id, reindeer_id, departure_time, arrival_tim
 (10, 10, '2024-12-14 15:00', NULL, 'cancelled'),
 (11, 2, '2024-12-15 18:00', '2024-12-15 23:00', 'arrived'),
 (12, 4, '2024-12-16 19:00', NULL, 'in_transit'),
-(13, 1, '2024-12-17 14:00', NULL, 'in_transit');
+(13, 1, '2024-12-17 14:00', NULL, 'in_transit'),
+(14, 11, '2025-12-18 18:00', '2025-12-18 22:00', 'arrived'),
+(15, 12, '2025-12-19 19:00', NULL, 'in_transit'),
+(16, 13, '2025-12-20 17:00', NULL, 'in_transit');
 
 
 INSERT INTO WarehouseInventory (warehouse_id, ingredient_id, quantity) VALUES
@@ -382,7 +481,11 @@ INSERT INTO WarehouseInventory (warehouse_id, ingredient_id, quantity) VALUES
 (6, 10, 200),
 (7, 9, 350),
 (8, 6, 220),
-(9, 7, 500);
+(9, 7, 500),
+(11, 11, 180),
+(12, 12, 260),
+(11, 13, 300);
+
 
 DELIMITER $$
 
@@ -408,3 +511,4 @@ BEGIN
 END$$
 
 DELIMITER ;
+
