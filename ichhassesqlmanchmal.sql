@@ -227,9 +227,9 @@ INSERT INTO Product (name, description, price, is_gluten_free, is_vegan) VALUES
 ('Reindeer Oats', 'Oat cookies for athletic reindeer', 2.20, 1, 1),
 ('Frost Marshmallows', 'Fluffy marshmallow candy', 1.80, 1, 0),
 ('Choco Snow Bomb', 'Chocolate dream sphere', 2.70, 0, 0),
-('Mystery Product 11', 'placeholder', 1.00, 1, 1),
-('Mystery Product 12', 'placeholder', 1.00, 1, 1),
-('Mystery Product 13', 'placeholder', 1.00, 1, 1),
+('Aurora Mint Shards', 'Cooling crystalline mint candy inspired by the northern lights.', 2.30, 1, 1),
+('Elf Energy Bar', 'A nutrient-packed oat-free vegan bar that keeps elves energized.', 2.90, 1, 1),
+('Starlight Ginger Crunch', 'A festive ginger cookie with a magical golden sparkle.', 2.50, 1, 1),
 ('Nut-Free Crunch', 'Crunch cookie without allergens', 2.00, 1, 1);
 
 
