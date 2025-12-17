@@ -42,7 +42,7 @@ CREATE TABLE Product (
     description      TEXT,
     price            DECIMAL(10,2) NOT NULL,
     is_gluten_free   TINYINT(1) NOT NULL DEFAULT 0,
-    is_seasonal      TINYINT(1) NOT NULL DEFAULT 0
+    is_vegan 		 TINYINT(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB;
 
 CREATE TABLE Ingredient (
@@ -107,8 +107,12 @@ CREATE TABLE `Order` (
     order_date    DATE NOT NULL,
     total_price   DECIMAL(10,2) NOT NULL,
     status        VARCHAR(50) NOT NULL,
+	rating_stars  INT,
+    rating_text   TEXT,
     CONSTRAINT fk_order_customer
-        FOREIGN KEY (customer_id) REFERENCES Customer(customer_id)
+        FOREIGN KEY (customer_id) REFERENCES Customer(customer_id),
+	CONSTRAINT rating_stars
+		CHECK(rating_stars between 0 and 5)
 ) ENGINE=InnoDB;
 
 CREATE TABLE OrderItem (
