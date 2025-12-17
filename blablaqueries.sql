@@ -1,3 +1,11 @@
+SELECT 
+    (SELECT COUNT(*) FROM ElfEmployee)
+  + (SELECT COUNT(*) FROM Santa)
+    AS total_personnel;
+
+
+
+
 -- wie viele schichten haben die elfen jeweils gearbeitet
 SELECT 
     e.elf_id,
