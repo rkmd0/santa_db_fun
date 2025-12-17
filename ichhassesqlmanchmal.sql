@@ -1,6 +1,6 @@
 -- OPTIONAL: create & select database
--- CREATE DATABASE northpole;
-USE northpole;
+-- CREATE DATABASE santa_and_co_kg;
+USE santa_and_co_kg;
 
 SET FOREIGN_KEY_CHECKS = 0;
 
@@ -106,8 +106,8 @@ CREATE TABLE `Order` (
     customer_id   INT UNSIGNED NOT NULL,
     order_date    DATE NOT NULL,
     total_price   DECIMAL(10,2) NOT NULL,
-    status        VARCHAR(50) NOT NULL,
-    rating_stars  INT,
+    status        ENUM("in_progress", "completed", "cancelled"),
+    rating_stars  TINYINT,
     rating_text   TEXT,
     CONSTRAINT fk_order_customer
         FOREIGN KEY (customer_id) REFERENCES Customer(customer_id),
@@ -174,6 +174,13 @@ CREATE TABLE WarehouseInventory (
     CONSTRAINT fk_inventory_ingredient
         FOREIGN KEY (ingredient_id) REFERENCES Ingredient(ingredient_id),
     UNIQUE KEY uq_inventory_wh_ingredient (warehouse_id, ingredient_id)
+) ENGINE=InnoDB;
+
+CREATE TABLE log(
+	log_id	INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    usr		VARCHAR(100),
+    ts		DATETIME,
+    ev		VARCHAR(100)
 ) ENGINE=InnoDB;
 
 -- =========================
@@ -282,7 +289,7 @@ INSERT INTO NorthPoleWarehouse (location, manager_name) VALUES
 ('Warehouse H2', 'Tilda Tundra'),
 ('Warehouse I', 'Berta Blizzard'),
 ('Warehouse J', 'Kuno Crystal'),
-('Warehouse K', 'Mila Hatwind');
+('Elsas Palace', 'Elsa');
 
 
 INSERT INTO ElfEmployee (name, email, hire_date, role_id, supervisor_id) VALUES
@@ -312,16 +319,18 @@ INSERT INTO Shift (elf_id, start_time, end_time) VALUES
 
 
 INSERT INTO `Order` (customer_id, order_date, total_price, status, rating_stars, rating_text) VALUES
-(4, '2024-12-08', 4.20, 'completed', 5, 'Great!'),
-(5, '2024-12-09', 7.60, 'completed', 4, 'Very good.'),
-(6, '2024-12-10', 14.50, 'delivered', 3, 'Quite okay'),
-(7, '2024-12-11', 6.00, 'in_progress', NULL, NULL),
-(8, '2024-12-12', 9.90, 'completed', 5, 'Super tasty!'),
-(9, '2024-12-13', 11.20, 'delivered', 4, 'Tastes good.'),
+(4, '2023-12-08', 4.20, 'completed', 5, 'Great!'),
+(5, '2023-12-09', 7.60, 'completed', 4, 'Very good.'),
+(6, '2023-12-10', 14.50, 'completed', 3, 'Quite okay'),
+(7, '2023-12-11', 6.00, 'completed', 2, 'Bad'),
+(8, '2023-12-12', 9.90, 'completed', 5, 'Super tasty!'),
+(9, '2024-12-13', 11.20, 'completed', 4, 'Tastes good.'),
 (10, '2024-12-14', 8.40, 'cancelled', NULL, NULL),
 (1, '2024-12-15', 3.10, 'completed', 5, 'Wonderful gift'),
-(2, '2024-12-16', 5.70, 'in_progress', NULL, NULL),
-(3, '2024-12-17', 12.80, 'completed', 5, 'Very festive!');
+(2, '2024-12-16', 5.70, 'completed', 5, 'Very festive'),
+(3, '2025-12-15', 12.80, 'in_progress', NULL, NULL),
+(4, '2025-12-16', 12.80, 'in_progress', NULL, NULL),
+(6, '2025-12-17', 12.80, 'in_progress', NULL, NULL);
 
 
 INSERT INTO OrderItem (order_id, product_id, quantity, price) VALUES
@@ -374,3 +383,28 @@ INSERT INTO WarehouseInventory (warehouse_id, ingredient_id, quantity) VALUES
 (7, 9, 350),
 (8, 6, 220),
 (9, 7, 500);
+
+DELIMITER $$
+
+CREATE TRIGGER update_status
+BEFORE UPDATE ON `Order`
+FOR EACH ROW
+BEGIN
+    IF NEW.rating_stars IS NOT NULL THEN
+        SET NEW.status = 'completed';
+    END IF;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE TRIGGER update_log
+AFTER INSERT ON `Order`
+FOR EACH ROW
+BEGIN
+    INSERT INTO log(usr, ts, ev)
+    VALUES (user(), NOW(), 'add');
+END$$
+
+DELIMITER ;
