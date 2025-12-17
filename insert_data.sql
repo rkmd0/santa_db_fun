@@ -1,3 +1,6 @@
+INSERT INTO Santa (name, email) VALUES
+('Santa Claus', 'santa@northpole.com'),
+('Satan', 'mrs.claus@northpole.com');
 INSERT INTO Role (role_name) VALUES
 ('Snow Sculptor'),
 ('Candy Designer'),
