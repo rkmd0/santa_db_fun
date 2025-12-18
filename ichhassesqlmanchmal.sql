@@ -190,29 +190,9 @@ CREATE TABLE log(
     ev		VARCHAR(100)
 ) ENGINE=InnoDB;
 
--- =========================
---  INDICES
--- =========================
-
-CREATE INDEX idx_elf_role ON ElfEmployee(role_id);
-CREATE INDEX idx_elf_supervisor ON ElfEmployee(supervisor_id);
-CREATE INDEX idx_shift_elf ON Shift(elf_id);
-
-CREATE INDEX idx_order_customer ON `Order`(customer_id);
-CREATE INDEX idx_order_date ON `Order`(order_date);
-
-CREATE INDEX idx_orderitem_order ON OrderItem(order_id);
-CREATE INDEX idx_orderitem_product ON OrderItem(product_id);
-
-CREATE INDEX idx_productingredient_ingredient ON ProductIngredient(ingredient_id);
-
-CREATE INDEX idx_delivery_order ON ReindeerDelivery(order_id);
-CREATE INDEX idx_delivery_reindeer ON ReindeerDelivery(reindeer_id);
-
-CREATE INDEX idx_inventory_warehouse ON WarehouseInventory(warehouse_id);
-CREATE INDEX idx_inventory_ingredient ON WarehouseInventory(ingredient_id);
-
 ALTER TABLE `Order` AUTO_INCREMENT = 4;
+
+
 
 
 -- Trigger to calculate the total price for each order
