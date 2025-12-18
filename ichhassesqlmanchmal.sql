@@ -1,11 +1,10 @@
--- OPTIONAL: create & select database
--- CREATE DATABASE santa_and_co_kg;
-
--- Eva Langstein 20251061
 -- Tim Lehmann 20251060
+-- Eva Langstein 20251061
 -- Felix Disselkamp 20251059
 -- Erkam Dogan 20251017
 -- Anne Staskiewicz 20251002
+
+CREATE DATABASE santa_and_co_kg;
 
 USE santa_and_co_kg;
 
@@ -558,9 +557,8 @@ JOIN Product p
     ON oi.product_id = p.product_id;
     
     
--- =========================
---  QUERIES
--- =========================
+
+    
 -- Average rating of customer Leo Blizzard
 SELECT c.name, AVG(rating_stars) as average_rating 
 FROM customer c
@@ -602,6 +600,10 @@ SELECT
     (SELECT COUNT(*) FROM ElfEmployee) +
     (SELECT COUNT(*) FROM Santa) +
     (SELECT COUNT(*) FROM Reindeer) AS total_employees;
+
+
+
+    
 
 
 
